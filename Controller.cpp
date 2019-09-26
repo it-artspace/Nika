@@ -2,7 +2,7 @@
 //Zadacha 1
 
 #include "Controller.hpp"
-#include "command.h"
+
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
 
