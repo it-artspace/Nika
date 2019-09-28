@@ -1,7 +1,8 @@
 
 #include "cluster.hpp"
 #include <cmath>
-#include<cstring>
+#include <string.h>
+#include <stdlib.h>
 
 Point Cluster::getCenter() const {
     double xCenter = 0, yCenter = 0;
