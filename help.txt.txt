@@ -1,0 +1,13 @@
+DISP [number]
+ustanovit' dispersiu
+GEN
+sgenerirovat' tochki
+DRAW
+vyvesti v fail
+GIST
+sozdat' gistogrammu
+
+primer:
+DISP 10
+GEN
+DRAW
