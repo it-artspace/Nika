@@ -2,8 +2,10 @@
 //Zadacha 1
 
 #include "Controller.hpp"
+#include "vawe_algorithm.h"
 #include "cluster.hpp"
 #include <cstring>
+#include <signal.h>
 
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
@@ -99,6 +101,28 @@ void Controller::processCommand(const char * command){
             fprintf(stdout, "rotated succesfully");
         } else {
             fprintf(stdout, "please specify another id");
+        }
+    }
+    if(strcmp(cmdtok, "FIND")==0){
+        std::vector<Point *> accumulated;
+        double treshold = strtod(arg, 0);
+        for(auto figure: canvas.getChildren()){
+            if(figure->type == 1)
+                accumulated.push_back(static_cast<Point*>(figure));
+        }
+        for(auto elem: clusterFinder::vaweSearch(accumulated, treshold)){
+            const char * colors [] = {
+                "black",
+                "blue",
+                "red",
+                "funchsia",
+                "yellow",
+                "orange",
+                "grey"
+            };
+            auto cluster_copy = new Cluster(elem);
+            cluster_copy->setColor(colors[rand() % 7]);
+            canvas.addFigure(cluster_copy);
         }
     }
     

@@ -33,6 +33,11 @@ public:
         return 0;
     }
     
+    const std::vector<IGeom *> getChildren() const {
+        return children;
+    }
+    
+    
     Point & createPoint(double x = 0, double y = 0);
     void reset();
     //pozvolyaut poluchit' pole bex izmenenia v samom objecte

@@ -36,7 +36,9 @@ Cluster::Cluster(Point & center){
     points.push_back(&center);
 }
 
-Cluster::Cluster(){}
+Cluster::Cluster(){
+    color = 0;
+}
 
 void Cluster::rotate(double angle){
     // raw vector to rotate
