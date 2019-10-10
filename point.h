@@ -15,7 +15,7 @@ public:
     // metod draw vozvrasch'aet stroku - mi zhe risuem v gnuplot (logichnim obrazom ne menyaa ekzemplyar, poetomu const)
     char * draw() const
     { return 0; }
-    const int type = 0;
+    int type = 0;
     virtual double getX() const { return 0;}
     virtual double getY() const { return 0;}
     virtual ~IGeom(){}
@@ -27,7 +27,6 @@ class Point :public IGeom{
     double mX;
     double mY;
 public:
-    const int type = 1;
     Point(double=0, double=0);
     double getX() const override;
     double getY() const override;

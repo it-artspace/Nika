@@ -8,6 +8,7 @@
 Point::Point(double x, double y){
     mX = x;
     mY = y;
+    type = 1;
 }
 
 char * Point::draw() const{

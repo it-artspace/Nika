@@ -6,6 +6,7 @@
 #include "cluster.hpp"
 #include <cstring>
 #include <signal.h>
+#include <typeinfo>
 
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
@@ -106,9 +107,11 @@ void Controller::processCommand(const char * command){
     if(strcmp(cmdtok, "FIND")==0){
         std::vector<Point *> accumulated;
         double treshold = strtod(arg, 0);
-        for(auto figure: canvas.getChildren()){
-            if(figure->type == 1)
-                accumulated.push_back(static_cast<Point*>(figure));
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point * copy = new Point(*static_cast<Point*>(figure));
+                accumulated.push_back(copy);
+            }
         }
         for(auto elem: clusterFinder::vaweSearch(accumulated, treshold)){
             const char * colors [] = {
@@ -120,9 +123,14 @@ void Controller::processCommand(const char * command){
                 "orange",
                 "grey"
             };
-            auto cluster_copy = new Cluster(elem);
-            cluster_copy->setColor(colors[rand() % 7]);
-            canvas.addFigure(cluster_copy);
+            auto cluster_copy = elem;
+            printf("found cluster and recorded to file %p.txt\n", (void*)cluster_copy);
+            cluster_copy->setColor(colors[rand() % (sizeof(colors)/sizeof(char*))]);
+            char namebuf [50];
+            sprintf(namebuf, "%p.txt", (void*)cluster_copy);
+            FILE* f = fopen(namebuf, "w");
+            cluster_copy->print(f);
+            fclose(f);
         }
     }
     

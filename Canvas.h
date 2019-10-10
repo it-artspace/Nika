@@ -37,7 +37,7 @@ public:
         return children;
     }
     
-    
+    void save() const;
     Point & createPoint(double x = 0, double y = 0);
     void reset();
     //pozvolyaut poluchit' pole bex izmenenia v samom objecte
