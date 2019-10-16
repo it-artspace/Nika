@@ -25,7 +25,11 @@ double Point::getY() const{
     return mY;
 }
 
-
 double Point::distanceTo(const Point & Other) const{
     return sqrt(mX*Other.mX + mY*Other.mY);
+}
+
+bool Point::operator==(const Point &rhs)const{
+    double delt = 1e-10;
+    return fabs(mX - rhs.mX) < delt && fabs(mY - rhs.mY) < delt;
 }

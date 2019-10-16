@@ -5,7 +5,7 @@
 #define Controller_hpp
 
 #include "Canvas.h"
-
+#include "kmeans.hpp"
 #include "ClusterBuilder.h"
 #include <ctime>
 #include <map>

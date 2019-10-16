@@ -28,6 +28,7 @@ class Point :public IGeom{
     double mY;
 public:
     Point(double=0, double=0);
+    bool operator==(const Point& rhs) const;
     double getX() const override;
     double getY() const override;
     double distanceTo(const Point &) const;

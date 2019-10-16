@@ -28,7 +28,7 @@ void Cluster::print(FILE * fout){
     }
 }
 
-const std::vector<const Point * > & Cluster::getState() const{
+std::vector<const Point * > & Cluster::getState(){
     return points;
 }
 

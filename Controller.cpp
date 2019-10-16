@@ -104,7 +104,7 @@ void Controller::processCommand(const char * command){
             fprintf(stdout, "please specify another id");
         }
     }
-    if(strcmp(cmdtok, "FIND")==0){
+    if(strcmp(cmdtok, "FIND_V")==0){
         std::vector<Point *> accumulated;
         double treshold = strtod(arg, 0);
         for(auto& figure: canvas.getChildren()){
@@ -132,6 +132,29 @@ void Controller::processCommand(const char * command){
             cluster_copy->print(f);
             fclose(f);
         }
+        return;
+    }
+    if(strcmp(cmdtok, "FIND_K")==0){
+        std::vector<Point *> accumulated;
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point * copy = new Point(*static_cast<Point*>(figure));
+                accumulated.push_back(copy);
+            }
+        }
+        /*
+         iterate over k, finding out minimum value
+         */
+        kmeansFinder::Iterator min = std::min(
+            kmeansFinder::startFind( accumulated ),
+            kmeansFinder::Iterator( (int)accumulated.size(), std::vector<Point*>()),
+                                              
+            [&](kmeansFinder:: Iterator it)->double{
+                return *it;
+            }
+        );
+
+        printf("k = %d, value = %lf, clusters found\n", min.getK(), *min);
     }
     
     free(cmdcopy);

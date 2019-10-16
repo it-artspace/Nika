@@ -23,7 +23,10 @@ public:
     Point getCenter() const;
     void addPoint(const Point &);
     void print(FILE*);
-    const std::vector<const Point * > & getState() const;
+    int size() const{
+        return points.size();
+    }
+    std::vector<const Point * > & getState();
     ~Cluster(){
         for(auto elem : points)
             delete elem;
