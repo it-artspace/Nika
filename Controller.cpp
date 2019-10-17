@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <typeinfo>
 #include <fstream>
-
+#include <unistd.h>
 
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
@@ -95,6 +95,7 @@ void Controller::processCommand(const char * command){
             IGeom * g = const_cast<Point*>(c);
             canvas.addFigure(g);
         });
+        c->archieve();
         fprintf(stdout, "cluster with id = %p generated succesfully", (void*)c);
     }
     
@@ -123,13 +124,25 @@ void Controller::processCommand(const char * command){
             
             auto cluster_copy = elem;
             printf("found cluster and recorded to file %p.txt\n", (void*)cluster_copy);
-            cluster_copy->setColor(rand() % (1<<24));
-            char namebuf [50];
-            sprintf(namebuf, "%p.txt", (void*)cluster_copy);
-            FILE* f = fopen(namebuf, "w");
-            cluster_copy->print(f);
-            fclose(f);
+            
+            elem->setColor(rand() % (1<<24));
+            elem->archieve();
         }
+        return;
+    }
+    if(strcmp(cmdtok, "ARCH")==0){
+        std::vector<Point *> accumulated;
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point * copy = new Point(*static_cast<Point*>(figure));
+                accumulated.push_back(copy);
+            }
+        }
+        FILE * f = fopen("__arch", "w");
+        for(auto point:accumulated){
+            fprintf(f, "%lf %lf %d\n", point->getX(), point->getY(), 0);
+        }
+        fclose(f);
         return;
     }
     if(strcmp(cmdtok, "FIND_K")==0){
@@ -140,6 +153,7 @@ void Controller::processCommand(const char * command){
                 accumulated.push_back(copy);
             }
         }
+        remove("__arch");
         /*
          iterate over k, finding out minimum value
          *//*
@@ -150,21 +164,20 @@ void Controller::processCommand(const char * command){
                 return d1 < d2;
             }
         )*/
-        kmeansFinder::Iterator min(1, std::vector<Point*>());
+        kmeansFinder::Iterator min(1, accumulated);
         kmeansFinder::Iterator least = min;
-        for(int k = 2; k < accumulated.size(); ++k){
-            if(*least < *min){
-                least = min;
-            }
+        while(*least <= *min){
+            least++;
         }
         min = least;
         std::vector<Cluster *>found = kmeansFinder(min.getK()).find(accumulated);
         std::for_each( found.begin(), found.end(), [&](Cluster * c)->void{
             c->setColor(rand() % (1<<24));
             c->archieve();
+            printf("found cluster with %d points\n", c->getState().size());
         });
         
-        printf("k = %d, value = %lf, clusters acrhieved\n", min.getK(), *min);
+        printf("k = %d, value = %lf, %d clusters acrhieved\n", min.getK(), *min, found.size());
         return;
     }
     if(strcmp(cmdtok, "DEARCH")==0){

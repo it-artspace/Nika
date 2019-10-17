@@ -31,7 +31,7 @@ void Cluster::print(FILE * fout){
 void Cluster::archieve() const {
     FILE * f = fopen("__arch", "a");
     for(auto point: points){
-        fprintf(f, "%lf %lf %d", point->getX(), point->getY(), color);
+        fprintf(f, "%lf %lf %d\n", point->getX(), point->getY(), color);
     }
 }
 

@@ -41,7 +41,8 @@ public:
         std::vector<Cluster *> clusters;
         
         for(int pointno = 0; pointno < k; ++pointno){
-            centers.push_back( *points[ rand() %  point_count] );
+            centers.push_back( *new Point(*points[ rand() %  point_count]) );
+            clusters.push_back(new Cluster());
         }
         std::vector<Point> this_gen;
         
@@ -59,7 +60,7 @@ public:
                         return c->getCenter().distanceTo(*point);
                     }
                 );*/
-                Cluster * belongs_to = clusters[1];
+                Cluster * belongs_to = clusters[0];
                 double min_distance = belongs_to->getCenter().distanceTo(*point);
                 for(int i = 1; i < k; ++i){
                     double d = clusters[i]->getCenter().distanceTo(*point);
