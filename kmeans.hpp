@@ -52,9 +52,21 @@ public:
                 clusters[i]->getState().push_back( &centers[i] );
             }
             for(auto& point: points){
-                Cluster * belongs_to = *std::min(clusters.begin(), clusters.end(), [&](Cluster * c)->double{
-                    return c->getCenter().distanceTo(*point);
-                });
+                
+                
+                /*
+                Cluster * belongs_to = *std::min(clusters.begin(), clusters.end(), [](Cluster * c)->double{
+                        return c->getCenter().distanceTo(*point);
+                    }
+                );*/
+                Cluster * belongs_to = clusters[1];
+                double min_distance = belongs_to->getCenter().distanceTo(*point);
+                for(int i = 1; i < k; ++i){
+                    double d = clusters[i]->getCenter().distanceTo(*point);
+                    if(d < min_distance){
+                        belongs_to = clusters[i];
+                    }
+                }
                 belongs_to->getState().push_back(point);
             }
             //then recount the centers and save them
@@ -77,21 +89,37 @@ public:
     // it provides Iterable interface over k giving as result the formula
     //{given summing formula}
     
-    class Iterator{
+    class Iterator : public std::forward_iterator_tag{
         int k_current;
+        double val;
         std::vector<Point *> points;
     public:
+        Iterator(){}
         Iterator(int k, std::vector<Point*> p){
             k_current = k;
             points = p;
+        }
+        Iterator(const Iterator& rhs){
+            k_current = rhs.k_current;
+            points = rhs.points;
+        }
+        Iterator& operator=(const Iterator & rhs){
+            k_current = rhs.k_current;
+            points = rhs.points;
+            return *this;
+        }
+        
+        Iterator& operator++(){
+            k_current ++;
+            return *this;
         }
         Iterator& operator++(int){
             k_current ++;
             return *this;
         }
-        double operator*(){
+        double& operator*(){
             kmeansFinder f( k_current );
-            return count_score( f.find( points ) );
+            return val = count_score( f.find( points ) );
         }
         
         int getK()const{
@@ -101,6 +129,10 @@ public:
         bool operator!=(Iterator&rhs){
             return k_current != rhs.k_current;
         }
+        double* operator->(){
+            return &val;
+        }
+
     };
     /*we will stop iteration when k equals points.size() as it is kinda nonsense*/
     static Iterator startFind(std::vector<Point*> points){

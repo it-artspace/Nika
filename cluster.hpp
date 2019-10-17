@@ -15,7 +15,8 @@ public:
 private:
     //holds references to heap-allocated points
     std::vector<const Point *> points;
-    const char * color;
+    //rgb
+    int color;
 public:
     Cluster();
     Cluster(Point & center);
@@ -23,17 +24,21 @@ public:
     Point getCenter() const;
     void addPoint(const Point &);
     void print(FILE*);
-    int size() const{
+    size_t size() const{
         return points.size();
     }
     std::vector<const Point * > & getState();
     ~Cluster(){
         for(auto elem : points)
             delete elem;
-        free(const_cast<char*>(color));
+        
+    }
+    int getColor() const {
+        return color;
     }
     char * draw() const override;
-    void setColor(const char *);
+    void setColor(int);
+    void archieve() const;
 };
 
 

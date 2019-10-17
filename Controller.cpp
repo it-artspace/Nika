@@ -7,6 +7,8 @@
 #include <cstring>
 #include <signal.h>
 #include <typeinfo>
+#include <fstream>
+
 
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
@@ -47,7 +49,7 @@ void Controller::processCommand(const char * command){
             fprintf(stderr, "Disp is not set. Set it by enter DISP [d:number]\n");
             return;
         }
-        srand(time(0));
+        srand((unsigned)time(0));
         // we need disp to be set
         canvas.reset();
         //generiruem tochki
@@ -80,8 +82,8 @@ void Controller::processCommand(const char * command){
         int bounds[4];
         int disp;
         int amount;
-        char color [100];
-        sscanf(arg, "%d%d%d%d%d%d%s", bounds, bounds + 1, bounds + 2, bounds + 3, &disp, &amount, color);
+        int color;
+        sscanf(arg, "%d%d%d%d%d%d%d", bounds, bounds + 1, bounds + 2, bounds + 3, &disp, &amount, &color);
         Cluster * c = &Cluster::Builder()
             .setPointAmount(amount)
             .setBounds(bounds)
@@ -89,6 +91,10 @@ void Controller::processCommand(const char * command){
             .build();
         canvas.addFigure(c);
         c->setColor(color);
+        std::for_each(c->getState().begin(), c->getState().end(), [&](const Point * c){
+            IGeom * g = const_cast<Point*>(c);
+            canvas.addFigure(g);
+        });
         fprintf(stdout, "cluster with id = %p generated succesfully", (void*)c);
     }
     
@@ -114,18 +120,10 @@ void Controller::processCommand(const char * command){
             }
         }
         for(auto elem: clusterFinder::vaweSearch(accumulated, treshold)){
-            const char * colors [] = {
-                "black",
-                "blue",
-                "red",
-                "funchsia",
-                "yellow",
-                "orange",
-                "grey"
-            };
+            
             auto cluster_copy = elem;
             printf("found cluster and recorded to file %p.txt\n", (void*)cluster_copy);
-            cluster_copy->setColor(colors[rand() % (sizeof(colors)/sizeof(char*))]);
+            cluster_copy->setColor(rand() % (1<<24));
             char namebuf [50];
             sprintf(namebuf, "%p.txt", (void*)cluster_copy);
             FILE* f = fopen(namebuf, "w");
@@ -144,17 +142,62 @@ void Controller::processCommand(const char * command){
         }
         /*
          iterate over k, finding out minimum value
-         */
-        kmeansFinder::Iterator min = std::min(
+         *//*
+        kmeansFinder::Iterator min = std::min_element(
             kmeansFinder::startFind( accumulated ),
             kmeansFinder::Iterator( (int)accumulated.size(), std::vector<Point*>()),
-                                              
-            [&](kmeansFinder:: Iterator it)->double{
-                return *it;
+            [](double d1, double d2){
+                return d1 < d2;
             }
-        );
-
-        printf("k = %d, value = %lf, clusters found\n", min.getK(), *min);
+        )*/
+        kmeansFinder::Iterator min(1, std::vector<Point*>());
+        kmeansFinder::Iterator least = min;
+        for(int k = 2; k < accumulated.size(); ++k){
+            if(*least < *min){
+                least = min;
+            }
+        }
+        min = least;
+        std::vector<Cluster *>found = kmeansFinder(min.getK()).find(accumulated);
+        std::for_each( found.begin(), found.end(), [&](Cluster * c)->void{
+            c->setColor(rand() % (1<<24));
+            c->archieve();
+        });
+        
+        printf("k = %d, value = %lf, clusters acrhieved\n", min.getK(), *min);
+        return;
+    }
+    if(strcmp(cmdtok, "DEARCH")==0){
+        std::vector<Cluster *> clusters;
+        std::ifstream ifs("__arch");
+        std::string point_repr;
+        while(getline(ifs, point_repr)){
+            char pbuf [1024];
+            strcpy(pbuf, point_repr.c_str());
+            double x, y;
+            int color;
+            sscanf(pbuf, "%lf %lf %d", &x, &y, &color);
+            auto iter = std::find_if( clusters.begin(), clusters.end(), [&](Cluster * c)->bool{
+                return c->getColor() == color;
+            });
+            Cluster * res;
+            if(iter == clusters.end()){
+                clusters.push_back(new Cluster());
+                res = clusters.back();
+                res->setColor(color);
+            } else {
+                res = *iter;
+            }
+            res->addPoint(* new Point(x, y) );
+            
+        }
+        std::for_each( clusters.begin(), clusters.end(), [&](Cluster * c){
+            for(auto point : (*c).getState()){
+                IGeom * g = const_cast<Point*>(point);
+                canvas.addFigure(g);
+            }
+        });
+        return;
     }
     
     free(cmdcopy);

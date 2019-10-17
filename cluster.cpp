@@ -28,6 +28,13 @@ void Cluster::print(FILE * fout){
     }
 }
 
+void Cluster::archieve() const {
+    FILE * f = fopen("__arch", "a");
+    for(auto point: points){
+        fprintf(f, "%lf %lf %d", point->getX(), point->getY(), color);
+    }
+}
+
 std::vector<const Point * > & Cluster::getState(){
     return points;
 }
@@ -57,8 +64,8 @@ void Cluster::rotate(double angle){
     }
 }
 
-void Cluster::setColor(const char * _color){
-    color = strdup(_color);
+void Cluster::setColor(int _color){
+    color = _color;
 }
 
 char * Cluster::draw() const{
@@ -72,6 +79,6 @@ char * Cluster::draw() const{
         free(point_dump);
     }
     fclose(f);
-    snprintf(dump, 100, "\"%s\" lc rgb \"%s\",", namedump, color?color:"black");
+    snprintf(dump, 100, "\"%s\" lc rgb \"#%d\",", namedump, color);
     return dump;
 }

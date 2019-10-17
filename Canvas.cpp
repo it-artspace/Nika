@@ -5,17 +5,15 @@
 #include "Canvas.h"
 
 void Canvas::draw() const{
-    char name[100];
-
-    sprintf(name, "%p.txt", this);
-    FILE* f = fopen(name, "w");
+    
+    FILE* f = popen("/usr/bin/gnuplot", "w+");
     fprintf(f, "plot ");
     for(IGeom * elem :children){//risuem kazhdyi
         char * dump = elem->draw(); //poluchaem strokovoe predstavlenie
         fputs(dump, f); //pishem v fail
         free(dump);
     }
-    fclose(f);
+    pclose(f);
 }
 
 void Canvas::createGist() const {
