@@ -167,6 +167,7 @@ void Controller::processCommand(const char * command){
         kmeansFinder::Iterator min(1, accumulated);
         kmeansFinder::Iterator least = min;
         while(*least <= *min){
+            min = least;
             least++;
         }
         min = least;
