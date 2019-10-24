@@ -22,7 +22,7 @@ public:
         for(int first_point_pos = 0; first_point_pos < points.size(); ++ first_point_pos){
             for(int second_point_pos = 0; second_point_pos < points.size(); ++ second_point_pos){
                 double distance = points[first_point_pos].distanceTo(points[second_point_pos]);
-                matrix[first_point_pos][second_point_pos] = (distance > treshold);
+                matrix[first_point_pos][second_point_pos] = (distance <= treshold);
             }
         }
         for(int point_iterator = 0; point_iterator < points.size(); ++point_iterator){

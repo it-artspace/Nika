@@ -22,9 +22,11 @@ public:
         for(int i = 0; i < amount; ++i){
             double x = 0, y = 0;
             for(int j = 0; j < disp; ++j){
-                x += rand()%(bounds[1] - bounds[0]) + bounds[0];
-                y += rand()%(bounds[3] - bounds[2]) + bounds[2];
+                x += rand()%(bounds[2] - bounds[0]) + bounds[0];
+                y += rand()%(bounds[3] - bounds[1]) + bounds[1];
             }
+            x/=disp;
+            y/=disp;
             points.push_back(Point(x, y));
         }
         return points;

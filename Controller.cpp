@@ -3,6 +3,7 @@
 
 #include "Controller.hpp"
 #include "spanTree.hpp"
+#include "Group.hpp"
 #include "vawe_algorithm.h"
 #include "cluster.hpp"
 #include <cstring>
@@ -85,18 +86,12 @@ void Controller::processCommand(const char * command){
         int amount;
         int color;
         sscanf(arg, "%d%d%d%d%d%d%d", bounds, bounds + 1, bounds + 2, bounds + 3, &disp, &amount, &color);
-        Cluster * c = &Cluster::Builder()
-            .setPointAmount(amount)
-            .setBounds(bounds)
-            .setDisp(disp)
-            .build();
-        canvas.addFigure(c);
-        c->setColor(color);
-        std::for_each(c->getState().begin(), c->getState().end(), [&](Point c){
-            canvas.addFigure(&c);
+        Group g(disp, amount, bounds);
+        std::vector<Point> points = g.generate();
+        std::for_each(points.begin(), points.end(), [&](Point c){
+            canvas.addFigure(new Point(c));
         });
-        c->archieve();
-        fprintf(stdout, "cluster with id = %p generated succesfully", (void*)c);
+        return;
     }
     
     if(strcmp(cmdtok, "ROTATE")==0){

@@ -26,7 +26,9 @@ double Point::getY() const{
 }
 
 double Point::distanceTo(const Point & Other) const{
-    return sqrt(mX*Other.mX + mY*Other.mY);
+    double dx = mX - Other.mX;
+    double dy = mY - Other.mY;
+    return sqrt(dx*dx + dy*dy);
 }
 
 bool Point::operator==(const Point &rhs)const{
