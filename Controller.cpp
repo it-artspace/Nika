@@ -1,7 +1,8 @@
-//211 - Kikteva Veornika
+//211 - Kikteva Veronika
 //Zadacha 1
 
 #include "Controller.hpp"
+#include "spanTree.hpp"
 #include "vawe_algorithm.h"
 #include "cluster.hpp"
 #include <cstring>
@@ -91,9 +92,8 @@ void Controller::processCommand(const char * command){
             .build();
         canvas.addFigure(c);
         c->setColor(color);
-        std::for_each(c->getState().begin(), c->getState().end(), [&](const Point * c){
-            IGeom * g = const_cast<Point*>(c);
-            canvas.addFigure(g);
+        std::for_each(c->getState().begin(), c->getState().end(), [&](Point c){
+            canvas.addFigure(&c);
         });
         c->archieve();
         fprintf(stdout, "cluster with id = %p generated succesfully", (void*)c);
@@ -112,21 +112,23 @@ void Controller::processCommand(const char * command){
         }
     }
     if(strcmp(cmdtok, "FIND_V")==0){
-        std::vector<Point *> accumulated;
+        std::vector<Point> accumulated;
         double treshold = strtod(arg, 0);
         for(auto& figure: canvas.getChildren()){
             if(figure->type == 1){
-                Point * copy = new Point(*static_cast<Point*>(figure));
+                Point copy (*static_cast<Point*>(figure));
                 accumulated.push_back(copy);
             }
         }
+        srand((unsigned)time(0));
+        remove("__arch");
         for(auto elem: clusterFinder::vaweSearch(accumulated, treshold)){
             
             auto cluster_copy = elem;
-            printf("found cluster and recorded to file %p.txt\n", (void*)cluster_copy);
+            printf("found cluster and recorded to file %p.txt\n", (void*)&cluster_copy);
             
-            elem->setColor(rand() % (1<<24));
-            elem->archieve();
+            elem.setColor(rand() % (1<<24));
+            elem.archieve();
         }
         return;
     }
@@ -146,39 +148,35 @@ void Controller::processCommand(const char * command){
         return;
     }
     if(strcmp(cmdtok, "FIND_K")==0){
-        std::vector<Point *> accumulated;
+        std::vector<Point> accumulated;
         for(auto& figure: canvas.getChildren()){
             if(figure->type == 1){
-                Point * copy = new Point(*static_cast<Point*>(figure));
+                Point copy (*static_cast<Point*>(figure));
                 accumulated.push_back(copy);
             }
         }
         remove("__arch");
         /*
          iterate over k, finding out minimum value
-         *//*
-        kmeansFinder::Iterator min = std::min_element(
-            kmeansFinder::startFind( accumulated ),
-            kmeansFinder::Iterator( (int)accumulated.size(), std::vector<Point*>()),
-            [](double d1, double d2){
-                return d1 < d2;
-            }
-        )*/
-        kmeansFinder::Iterator min(1, accumulated);
-        kmeansFinder::Iterator least = min;
-        while(*least <= *min){
-            min = least;
-            least++;
-        }
-        min = least;
-        std::vector<Cluster *>found = kmeansFinder(min.getK()).find(accumulated);
-        std::for_each( found.begin(), found.end(), [&](Cluster * c)->void{
-            c->setColor(rand() % (1<<24));
-            c->archieve();
-            printf("found cluster with %d points\n", c->getState().size());
-        });
+         */
+        kmeansFinder initial(2);
+        std::vector<Cluster> found = initial.find(accumulated);
+        double minScore = count_score( found );
+        int k = 2;
+        double curScore;
         
-        printf("k = %d, value = %lf, %d clusters acrhieved\n", min.getK(), *min, found.size());
+        do{
+            kmeansFinder finder(++k);
+            found = finder.find(accumulated);
+            curScore = count_score(found);
+            
+        }while(curScore <= minScore && ({minScore = curScore;true;}));
+        srand(time(0));
+        forEach(found, [](Cluster &c){
+            c.setColor(rand()%(1<<24));
+            c.archieve();
+        });
+        printf("k = %d, value = %lf, %lu clusters acrhieved\n", k, curScore, found.size());
         return;
     }
     if(strcmp(cmdtok, "DEARCH")==0){
@@ -207,10 +205,27 @@ void Controller::processCommand(const char * command){
         }
         std::for_each( clusters.begin(), clusters.end(), [&](Cluster * c){
             for(auto point : (*c).getState()){
-                IGeom * g = const_cast<Point*>(point);
-                canvas.addFigure(g);
+                canvas.addFigure(new Point(point));
             }
         });
+        return;
+    }
+    if(strcmp(cmdtok, "SPAN")==0){
+        std::vector<Point> accumulated;
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point copy (*static_cast<Point*>(figure));
+                accumulated.push_back(copy);
+            }
+        }
+        Point p = accumulated[0];
+        TreeNode * head = new TreeNode(p);
+        TreeNode * walker = head;
+        while(accumulated.size() > 0){
+            walker = &walker->findNext(accumulated);
+        }
+        head->gist();
+        delete head;
         return;
     }
     
