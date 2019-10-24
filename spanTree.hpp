@@ -31,7 +31,7 @@ public:
         TreeNode * next;
         while(walker){
             next = walker->next;
-            free(walker);
+            delete walker;
             walker = next;
         }
     }
@@ -49,7 +49,8 @@ public:
         double max_distance = *std::max_element(distances.begin(), distances.end());
         
         //podschtivaem kolichectvo tochek v kazhdom
-        int * regions = (int*)alloca(max_distance/20*sizeof(int));
+        int * regions = (int*)alloca((max_distance/20 + 1)*sizeof(int));
+        bzero(regions, max_distance/20*sizeof(int));
         forEach(distances, [&](double distance){
             regions[int(distance/20)]++;
         });
