@@ -1,6 +1,7 @@
 //211 - Kikteva Veronika
 //Zadacha 1
 #include "kmeans.hpp"
+#include <algorithm>
 double count_score(std::vector<Cluster> clusters){
     double score = 0;
     for(int i = 0; i < clusters.size(); ++i){
