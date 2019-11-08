@@ -7,6 +7,7 @@
 #include "cluster.hpp"
 #include <vector>
 #include "utils.cpp"
+#include <algorithm>
 
 
 //implements only finding, other code is responsible for calculating values
@@ -69,7 +70,7 @@ public:
         std::vector<Cluster> prevGen;
         for(int i = 0; i < k; ++i){
             centers.push_back( points[ rand() % points.size() ] );
-            generation.push_back(Cluster());
+            generation.push_back(Cluster( points[ rand() % points.size() ] ));
         }
         do{
             prevGen = generation;

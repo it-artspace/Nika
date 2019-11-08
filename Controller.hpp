@@ -11,6 +11,7 @@
 #include <map>
 #include <cstdlib>
 #include <cstdio>
+#include <algorithm>
 // u nas vsego odin object, poetomu mi sdelali constuctor privatnym
 class Controller{
 public: class command;

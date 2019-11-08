@@ -7,6 +7,7 @@
 #include "point.h"
 #include <stdlib.h>
 #include <vector>
+#include <cstring>
 class Group{
     std::vector<Point> points;
     int bounds[4];

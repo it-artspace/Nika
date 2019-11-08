@@ -5,6 +5,7 @@
 
 #include "point.h"
 #include <vector>
+#include <cstring>
 #include "utils.hpp"
 #include <set>
 

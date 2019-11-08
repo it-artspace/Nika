@@ -25,7 +25,7 @@ Controller::Controller() :canvas(){}
 //kazhday stroka - komanda
 void Controller::acquireListener(FILE * fd){
     char command [1024];
-    fprintf(stdout, "Listening file descriptor %d\n>>>", fd->_file);
+    fprintf(stdout, "Listening file descriptor %d\n>>>", fileno(fd));
     while(fgets(command, 1024, fd)){
         processCommand(command);
         fprintf(stdout, "\n>>>");
@@ -111,7 +111,7 @@ void Controller::processCommand(const char * command){
         std::vector<Point> accumulated;
         double treshold = strtod(arg, 0);
         for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
+            if(1){
                 Point copy (*static_cast<Point*>(figure));
                 accumulated.push_back(copy);
             }
@@ -131,7 +131,7 @@ void Controller::processCommand(const char * command){
     if(strcmp(cmdtok, "ARCH")==0){
         std::vector<Point *> accumulated;
         for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
+            if(1){
                 Point * copy = new Point(*static_cast<Point*>(figure));
                 accumulated.push_back(copy);
             }
@@ -200,6 +200,7 @@ void Controller::processCommand(const char * command){
             
         }
         std::for_each( clusters.begin(), clusters.end(), [&](Cluster * c){
+            printf("loaded %d points\n", c->getState().size());
             for(auto point : (*c).getState()){
                 canvas.addFigure(new Point(point));
             }
