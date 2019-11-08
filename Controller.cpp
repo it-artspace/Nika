@@ -2,6 +2,7 @@
 //Zadacha 1
 
 #include "Controller.hpp"
+#include "Hierarchy.h"
 #include "spanTree.hpp"
 #include "Group.hpp"
 #include "vawe_algorithm.h"
@@ -206,21 +207,16 @@ void Controller::processCommand(const char * command){
         return;
     }
     if(strcmp(cmdtok, "SPAN")==0){
-        std::vector<Point> accumulated;
+        std::set<Point> accumulated;
         for(auto& figure: canvas.getChildren()){
             if(figure->type == 1){
                 Point copy (*static_cast<Point*>(figure));
-                accumulated.push_back(copy);
+                accumulated.insert(copy);
             }
         }
-        Point p = accumulated[0];
-        TreeNode * head = new TreeNode(p);
-        TreeNode * walker = head;
-        while(accumulated.size() > 0){
-            walker = &walker->findNext(accumulated);
-        }
-        head->gist();
-        delete head;
+        TreeFactory factory;
+        factory.generateGist(accumulated);
+        fprintf(stdout, "Recorded to gist.txt\n plot with: plot \"gist.txt\" with boxes");
         return;
     }
     

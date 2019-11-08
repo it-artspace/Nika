@@ -32,6 +32,9 @@ public:
     double getX() const override;
     double getY() const override;
     double distanceTo(const Point &) const;
+    bool operator<(const Point& rhs) const {
+        return mX < rhs.mX || mY < rhs.mY;
+    }
     //realizuet funciu draw is IGeom (pereopredel'aet ee dl'a tochki)
     char * draw() const override;
     ~Point() override{}

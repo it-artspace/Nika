@@ -1,13 +1,40 @@
-DISP [number]
-ustanovit' dispersiu
-GEN
-sgenerirovat' tochki
-DRAW
-vyvesti v fail
-GIST
-sozdat' gistogrammu
+signatura:
+<IDENTIFIER> [, < [ ARGUMENT: type ] > ]
+    poyasnenie
 
-primer:
-DISP 10
+comanda = stroka do symvola \n ili -1 (EOF)
+
+DISP [DISP:int]
+    ustanovit' dispersiu
+    
 GEN
+    sgenerirovat' tochki
+    
 DRAW
+    vyvesti v fail
+    
+GIST
+    sozdat' gistogrammu
+
+ARCH
+    archiviruet tochki canvasa v file __arch
+
+DEARCH
+    dostaet tochki is file __arch, mozhet slomatsa, esli ego net
+    
+FIND_K
+    realizuet algorithm poiska k-srednih. Skazhite, u vas ne idet krov iz glaz, kogda vi chitaete translit? u menya da
+    
+FIND_V [THRESHOLD:double]
+    volnovoi poisk
+
+---------------------------
+nekotorye soobrazhenia i instruckii k optimalnomu ispolzovaniu
+
+sborka: make, poluchaetsya file "geom"
+
+postroenie pandi: v file "cmds" napisan script, "./geom cmds"
+
+
+
+
