@@ -28,8 +28,8 @@ void Cluster::print(FILE * fout){
     }
 }
 
-void Cluster::archieve() const {
-    FILE * f = fopen("__arch", "a");
+void Cluster::archieve(std::string arg) const {
+    FILE * f = fopen(("__arch"+arg).c_str(), "a");
     for(auto point: points){
         fprintf(f, "%lf %lf %d\n", point.getX(), point.getY(), color);
     }

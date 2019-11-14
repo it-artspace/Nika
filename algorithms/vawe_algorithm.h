@@ -3,8 +3,8 @@
 #ifndef vawe_algorithm_h
 #define vawe_algorithm_h
 
-#include "cluster.hpp"
-
+#include "../Objects/cluster.hpp"
+#warning TODO: restructure
 class clusterFinder{
 public:
     static

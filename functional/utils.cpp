@@ -19,3 +19,12 @@ void forEach(Basic_t source, Transformer_t remapper){
         remapper(element);
     }
 }
+
+template<typename T, typename F, typename R>
+T reduceVector(R vector, F reducer){
+    T inival;
+    for(auto elem: vector){
+        inival = reducer(elem, inival);
+    }
+    return inival;
+}

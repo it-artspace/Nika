@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "point.h"
 #include <vector>
-
+#include <string>
 
 
 class Cluster : public IGeom{
@@ -36,7 +36,7 @@ public:
     }
     char * draw() const override;
     void setColor(int);
-    void archieve() const;
+    void archieve(std::string arg="") const;
 };
 
 

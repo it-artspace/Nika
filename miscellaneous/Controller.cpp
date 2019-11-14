@@ -2,11 +2,11 @@
 //Zadacha 1
 
 #include "Controller.hpp"
-#include "Hierarchy.h"
-#include "spanTree.hpp"
-#include "Group.hpp"
-#include "vawe_algorithm.h"
-#include "cluster.hpp"
+#include "../algorithms/Hierarchy.h"
+#include "../algorithms/spanTree.hpp"
+#include "../Objects/Group.hpp"
+#include "../algorithms/vawe_algorithm.h"
+#include "../Objects/cluster.hpp"
 #include <cstring>
 #include <signal.h>
 #include <typeinfo>
@@ -118,13 +118,14 @@ void Controller::processCommand(const char * command){
         }
         srand((unsigned)time(0));
         remove("__arch");
+        std::string time_arg = std::to_string(clock() % 9837);
         for(auto elem: clusterFinder::vaweSearch(accumulated, treshold)){
             
             auto cluster_copy = elem;
             printf("found cluster and recorded to file %p.txt\n", (void*)&cluster_copy);
             
             elem.setColor(rand() % (1<<24));
-            elem.archieve();
+            elem.archieve(time_arg);
         }
         return;
     }
@@ -151,33 +152,54 @@ void Controller::processCommand(const char * command){
                 accumulated.push_back(copy);
             }
         }
-        remove("__arch");
+        remove("__arch*");
         /*
          iterate over k, finding out minimum value
          */
         kmeansFinder initial(2);
         std::vector<Cluster> found = initial.find(accumulated);
         double minScore = count_score( found );
-        int k = 2;
-        double curScore;
+        int k = 0;
+        sscanf(arg, "%d", &k);
+        kmeansFinder finder(k);
+        found = finder.find(accumulated);
+        double curScore = count_score(found);
         
-        do{
-            kmeansFinder finder(++k);
-            found = finder.find(accumulated);
-            curScore = count_score(found);
-            
-        }while(curScore <= minScore && ({minScore = curScore;true;}));
         srand(time(0));
-        forEach(found, [](Cluster &c){
+        std::string time_arg = std::to_string(clock() % 9837);
+        forEach(found, [&](Cluster &c){
             c.setColor(rand()%(1<<24));
-            c.archieve();
+            c.archieve(time_arg);
         });
         printf("k = %d, value = %lf, %lu clusters acrhieved\n", k, curScore, found.size());
         return;
     }
+    
+    if(strcmp(cmdtok, "IERARCH")==0){
+        int count;
+        sscanf(arg, "%d", &count);
+        std::vector<Point> accumulated;
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point copy (*static_cast<Point*>(figure));
+                accumulated.push_back(copy);
+            }
+        }
+        auto found = hierchAlgorithm().find(count, accumulated);
+        std::string time_arg = std::to_string(clock() % 9837);
+        forEach(found, [&](Cluster &c){
+            c.setColor(rand()%(1<<24));
+            c.archieve(time_arg);
+        });
+        printf("%lu clusters acrhieved\n", found.size());
+        return;
+        
+    }
+    
     if(strcmp(cmdtok, "DEARCH")==0){
+        std::string argstr(arg);
         std::vector<Cluster *> clusters;
-        std::ifstream ifs("__arch");
+        std::ifstream ifs("__arch"+argstr);
         std::string point_repr;
         while(getline(ifs, point_repr)){
             char pbuf [1024];

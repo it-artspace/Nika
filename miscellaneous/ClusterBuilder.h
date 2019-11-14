@@ -1,7 +1,7 @@
 
 #ifndef ClusterBuilder_h
 #define ClusterBuilder_h
-#include "cluster.hpp"
+#include "../Objects/cluster.hpp"
 #include <ctime>
 class Cluster::Builder{
     Cluster * cluster;

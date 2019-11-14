@@ -23,6 +23,7 @@ public:
 
 //klass Point eto geometricheskaya figura - nasleduet Geom Inteface
 class Point :public IGeom{
+protected:
     //ego coordinati
     double mX;
     double mY;
@@ -31,6 +32,8 @@ public:
     bool operator==(const Point& rhs) const;
     double getX() const override;
     double getY() const override;
+    void   setX(double x){ mX = x; }
+    void   setY(double y){ mY = y; }
     double distanceTo(const Point &) const;
     bool operator<(const Point& rhs) const {
         return mX < rhs.mX || mY < rhs.mY;

@@ -9,7 +9,6 @@
 #include "../functional/utils.cpp"
 #include <algorithm>
 
-
 //implements only finding, other code is responsible for calculating values
 double count_score(std::vector<Cluster>);
 class kmeansFinder{

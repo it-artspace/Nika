@@ -4,8 +4,8 @@
 #ifndef Controller_hpp
 #define Controller_hpp
 
-#include "Canvas.h"
-#include "kmeans.hpp"
+#include "../Objects/Canvas.h"
+#include "../algorithms/kmeans.hpp"
 #include "ClusterBuilder.h"
 #include <ctime>
 #include <map>

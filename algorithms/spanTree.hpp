@@ -3,10 +3,10 @@
 #ifndef spanTree_hpp
 #define spanTree_hpp
 
-#include "point.h"
+#include "../Objects/point.h"
 #include <vector>
 #include <cstring>
-#include "utils.hpp"
+#include "../functional/utils.hpp"
 #include <set>
 
 
