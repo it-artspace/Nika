@@ -4,9 +4,9 @@
 #ifndef kmeans_hpp
 #define kmeans_hpp
 
-#include "cluster.hpp"
+#include "../Objects/cluster.hpp"
 #include <vector>
-#include "utils.cpp"
+#include "../functional/utils.cpp"
 #include <algorithm>
 
 

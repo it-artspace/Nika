@@ -1,8 +1,8 @@
 //211 - Kikteva Veronika
 //Zadacha 1
 
-#include "Controller.hpp"
-#include "ClusterBuilder.h"
+#include "miscellaneous/Controller.hpp"
+#include "miscellaneous/ClusterBuilder.h"
 
 int main(int argc, char ** argv) {
     //zapuskaem upravlyauschiy klass
