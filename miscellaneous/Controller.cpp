@@ -7,6 +7,7 @@
 #include "../Objects/Group.hpp"
 #include "../algorithms/vawe_algorithm.h"
 #include "../Objects/cluster.hpp"
+#include "../algorithms/dbscan.h"
 #include <cstring>
 #include <signal.h>
 #include <typeinfo>
@@ -195,6 +196,29 @@ void Controller::processCommand(const char * command){
         return;
         
     }
+    
+    if(strcmp(cmdtok, "DBSCAN")==0){
+        int count;
+        double thresold;
+        sscanf(arg, "%d%lf", &count, &thresold);
+        std::set<Point> accumulated;
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point copy (*static_cast<Point*>(figure));
+                accumulated.insert(copy);
+            }
+        }
+        auto found = DBSCAN(thresold, count).find(accumulated);
+        std::string time_arg = std::to_string(clock() % 9837);
+        forEach(found, [&](Cluster &c){
+            c.setColor(rand()%(1<<24));
+            c.archieve(time_arg);
+        });
+        printf("%lu clusters acrhieved\n", found.size());
+        return;
+        
+    }
+    
     
     if(strcmp(cmdtok, "DEARCH")==0){
         std::string argstr(arg);
