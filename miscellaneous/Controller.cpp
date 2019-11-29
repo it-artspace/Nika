@@ -8,6 +8,7 @@
 #include "../algorithms/vawe_algorithm.h"
 #include "../Objects/cluster.hpp"
 #include "../algorithms/dbscan.h"
+#include "../algorithms/Forel.h"
 #include <cstring>
 #include <signal.h>
 #include <typeinfo>
@@ -195,6 +196,34 @@ void Controller::processCommand(const char * command){
         printf("%lu clusters acrhieved\n", found.size());
         return;
         
+    }
+    
+    if(strcmp(cmdtok, "FOREL")==0){
+        double rad;
+        sscanf(arg, "%lf", &rad);
+        std::vector<Point> accumulated;
+        for(auto& figure: canvas.getChildren()){
+            if(figure->type == 1){
+                Point copy (*static_cast<Point*>(figure));
+                accumulated.push_back(copy);
+            }
+        }
+        auto algorithm = ForelAlgorithm();
+        auto result = algorithm.find(accumulated, rad);
+        std::string time_arg = std::to_string(clock() % 9837);
+        FILE* sphere_output = fopen(("spheres"+time_arg).c_str(), "w");
+        forEach(result, [&](Cluster &c){
+            c.setColor(rand()%(1<<24));
+            c.archieve(time_arg);
+            Point center =  reduceVector<Point>(c.getState(), [&](Point p, Point acc)->Point{
+                return Point(p.getX() + acc.getY(), p.getY() + acc.getY());
+            });
+            center.setX( center.getX() / c.size() );
+            center.setY( center.getY() / c.size() );
+            fprintf(sphere_output, "%lf %lf\n", center.getX(), center.getY());
+        });
+        fclose(sphere_output);
+        return;
     }
     
     if(strcmp(cmdtok, "DBSCAN")==0){

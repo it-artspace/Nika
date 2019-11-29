@@ -8,14 +8,24 @@
 #include <cstring>
 #include "../functional/utils.hpp"
 #include <set>
-
+#include "../Objects/bitset.h"
 
 class TreeFactory{
-    std::set<Point> graph;
-    std::set<Point> source;
+    std::set<const Point*> graph;
+    std::set<const Point*> source;
+    std::set<Point> data;
     
-    typedef std::pair<std::set<Point>::iterator, std::set<Point>::iterator> verge;
-    typedef std::vector< verge > VergeSet;
+    
+    typedef std::pair<std::set<const Point*>::iterator, std::set<const Point*>::iterator> verge;
+    static double vergeLength(const verge& v);
+    class vergeComp{
+        public :bool operator()(const verge& v1, const verge& v2){
+            return vergeLength(v1) < vergeLength(v2);
+        }
+    };
+    
+    
+    typedef std::vector< verge> VergeSet;
     
     //pairs point at elements from the first set
     VergeSet verges;
@@ -40,13 +50,16 @@ class TreeFactory{
             }
         }
         //2
-        verge leastVerge = *std::min_element(analyzed.begin(), analyzed.end(), [&](verge v1, verge v2)->bool{
-            return (*v1.first).distanceTo(*v1.second) <= v2.first->distanceTo(*v2.second);
+        const verge& leastVerge = *std::min_element(analyzed.begin(), analyzed.end(), [&](const verge& v1, const verge& v2)->bool{
+            return vergeComp()(v1, v2);
         });
         //3
-        std::set<Point>::iterator nextPoint = leastVerge.second;
+        std::set<const Point*>::iterator nextPoint = leastVerge.second;
+        
+        
+        auto new_place = graph.insert(*nextPoint);
+        const_cast<verge&>(leastVerge).second = new_place.first;
         verges.push_back(leastVerge);
-        graph.insert(*nextPoint);
         source.erase(nextPoint);
         /* Note: the order of erase and insertion is very important
          * we need to copy the point to the graph set before it is deleted
@@ -54,12 +67,15 @@ class TreeFactory{
     }
     
 public:
-    static double vergeLength(verge v);
+    
     //analyzes passed set and prints gist into same named file
     void generateGist( std::set<Point> points ){
-        source = points;
+        data = points;
+        for(auto& item:data){
+            source.insert(&item);
+        }
         //select a point
-        Point p = *source.begin();
+        const Point* p = *source.begin();
         graph.insert(p);
         source.erase(p);
         
@@ -70,23 +86,29 @@ public:
             Iterate();
         }
         //now lets think about what we have achieved
-        double maxDistance = vergeLength(*std::max_element(verges.begin(), verges.end(), [&](verge v1, verge v2)->bool{
+        
+        
+        
+        
+        auto maxDistVerge = std::max_element(verges.begin(), verges.end(), [&](const verge& v1, const verge& v2)->bool{
             return vergeLength(v1) <= vergeLength(v2);
-        }));
+        });
+        double maxDistance = vergeLength(*maxDistVerge);
         //lets divide into 20 regions
         //why 20? for nice gist
         //actually also can be taken as a param and used via alloca
-        int regions[20];
-        bzero(regions, sizeof(int)*20);
+        int regions[21];
+        bzero(regions, sizeof(int)*21);
         //every distance coming will come to dist/max * 20 position
         for(auto v: verges){
             regions[int(vergeLength(v) / maxDistance * 20)] ++;
         }
         //record
-        
-        FILE * f = fopen("gist.txt", "w");
-        for(int i = 0; i < 20; ++i){
-            fprintf(f, "%d\n", regions[i]);
+        char spanname [1000];
+        sprintf(spanname, "span%d.txt", int(clock() % 9277));
+        FILE * f = fopen(spanname, "w");
+        for(auto& verge: verges){
+            fprintf(f, "%f %f\n%f %f\n\n", (*verge.first)->getX(), (*verge.first)->getY(), (*verge.second)->getX(), (*verge.second)->getY());
         }
         fclose(f);
     }

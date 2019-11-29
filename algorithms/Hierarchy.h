@@ -7,7 +7,9 @@
 #include "../Objects/point.h"
 #include "../functional/utils.hpp"
 #include <vector>
+#include <cmath>
 #include <algorithm>
+#include <set>
 
 class hierchAlgorithm{
     
@@ -16,12 +18,9 @@ class hierchAlgorithm{
         std::vector< Point > children;
         //Note: center will be read N times more than written so there is sense to cache it
         Point center;
-        //we will update these values when updating
-        //this is a pretty pattern, idk what
         
     public:
         HeavyPoint():center(0, 0){
-            //just nothing
         }
         
         //only way to mutate is add a point
@@ -46,7 +45,7 @@ class hierchAlgorithm{
             return center = nc;
         }
         
-        HeavyPoint Merge(HeavyPoint & Other){
+        HeavyPoint Merge(const HeavyPoint & Other) const{
             HeavyPoint new_heavy;
             for(auto point: children)
                 new_heavy.addPoint(point);
@@ -55,10 +54,16 @@ class hierchAlgorithm{
             return new_heavy;
         }
         
+        bool operator < (const HeavyPoint& Other)const {
+            bool factor = children.size() < Other.children.size();
+            factor |= center < Other.center;
+            return factor;
+        }
+        
     };
     
     //actually contain the centers
-    std::vector<HeavyPoint> centers;
+    std::set<HeavyPoint> centers;
 public:
     
     std::vector< Cluster > find(int count, std::vector<Point> points){
@@ -66,7 +71,7 @@ public:
         for(auto point:points){
             HeavyPoint heavy;
             heavy.addPoint(point);
-            centers.push_back(heavy);
+            centers.insert(heavy);
         }
         while(centers.size() > count){
             Iterate();
@@ -89,10 +94,10 @@ public:
         auto first = centers.begin();
         auto second = ++centers.begin();
         double min_dist = (*first).getCenter().distanceTo((*second).getCenter());
-        for(auto firstIdx = centers.begin(); firstIdx < centers.end(); ++firstIdx){
-            for(auto secIdx = firstIdx; secIdx < centers.end(); ++secIdx){
+        for(auto firstIdx = centers.begin(); firstIdx != centers.end(); ++firstIdx){
+            for(auto secIdx = firstIdx; secIdx != centers.end(); ++secIdx){
                 double dist = (*firstIdx).getCenter().distanceTo((*secIdx).getCenter());
-                if(dist!= 0 && dist < min_dist){
+                if(fabs(dist) > 1e-15 && dist < min_dist){
                     min_dist = dist;
                     first = firstIdx;
                     second = secIdx;
@@ -102,7 +107,7 @@ public:
         HeavyPoint newPoint = first->Merge(*second);
         centers.erase(first);
         centers.erase(second);
-        centers.push_back(newPoint);
+        centers.insert(newPoint);
         
     }
     
