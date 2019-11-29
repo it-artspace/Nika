@@ -29,9 +29,9 @@ public:
     
     Point getSphereCenter(Sphere sphere){
         Point p = reduceVector<Point>(sphere, [&](std::set<Point>::iterator p, Point acc)->Point{
-            return Point(p->getX() + acc.getY(), p->getY() + acc.getY());
+            return Point(p->getX() + acc.getX(), p->getY() + acc.getY());
         });
-        return Point( p.getX()/sphere.size(), p.getY()/sphere.size() );
+        return Point( p.getX()/(sphere.size()), p.getY()/(sphere.size()) );
     }
 private:
     
@@ -42,6 +42,8 @@ private:
         do{
             center = getSphereCenter(sphere);
             sphere = getSphere(center);
+            if(sphere.size() == points.size())
+                break;
         }while(not (getSphereCenter(sphere) == center) );
         Cluster cl;
         for(auto& point: sphere){

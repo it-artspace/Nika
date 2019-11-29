@@ -216,7 +216,7 @@ void Controller::processCommand(const char * command){
             c.setColor(rand()%(1<<24));
             c.archieve(time_arg);
             Point center =  reduceVector<Point>(c.getState(), [&](Point p, Point acc)->Point{
-                return Point(p.getX() + acc.getY(), p.getY() + acc.getY());
+                return Point(p.getX() + acc.getX(), p.getY() + acc.getY());
             });
             center.setX( center.getX() / c.size() );
             center.setY( center.getY() / c.size() );
