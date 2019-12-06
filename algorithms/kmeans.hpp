@@ -8,10 +8,10 @@
 #include <vector>
 #include "../functional/utils.cpp"
 #include <algorithm>
-
+#include "algorithmsControl.h"
 //implements only finding, other code is responsible for calculating values
 double count_score(std::vector<Cluster>);
-class kmeansFinder{
+class kmeansFinder: public Algorithm{
     int k;
     std::vector<Point> centers;
     std::vector<Point> analyzed;
@@ -59,11 +59,13 @@ public:
         return 1;
     }
     
-    kmeansFinder(int number){
-        k = number;
+    kmeansFinder(){}
+    
+    void setup(char * arg) override{
+        sscanf(arg, "%d", &k);
     }
     
-    std::vector<Cluster> find(std::vector<Point> points){
+    std::vector<Cluster> find(std::vector<Point> points) override{
         analyzed = points;
         std::vector<Cluster> generation;
         std::vector<Cluster> prevGen;
@@ -83,7 +85,8 @@ public:
                         return c.getCenter();
                     }))
         );
-      
+        centers.clear();
+        analyzed.clear();
         return generation;
         
     }

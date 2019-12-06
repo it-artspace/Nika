@@ -2,13 +2,8 @@
 //Zadacha 1
 
 #include "Controller.hpp"
-#include "../algorithms/Hierarchy.h"
-#include "../algorithms/spanTree.hpp"
-#include "../Objects/Group.hpp"
-#include "../algorithms/vawe_algorithm.h"
-#include "../Objects/cluster.hpp"
-#include "../algorithms/dbscan.h"
-#include "../algorithms/Forel.h"
+
+#include "../algorithms/algorithmsControl.h"
 #include <cstring>
 #include <signal.h>
 #include <typeinfo>
@@ -22,7 +17,6 @@ Controller & Controller::getInstance(){
     return *Controller::instance;
 }
 
-Controller::Controller() :canvas(){}
 
 //kazhday stroka - komanda
 void Controller::acquireListener(FILE * fd){
@@ -33,6 +27,20 @@ void Controller::acquireListener(FILE * fd){
         fprintf(stdout, "\n>>>");
     }
 }
+
+
+std::vector<Point> Controller::extracted() {
+    std::vector<Point> accumulated;
+    for(auto& figure: canvas.getChildren()){
+        if(1){
+            Point copy (*static_cast<Point*>(figure));
+            accumulated.push_back(copy);
+        }
+    }
+    return accumulated;
+}
+
+
 
 
 void Controller::processCommand(const char * command){
@@ -109,26 +117,12 @@ void Controller::processCommand(const char * command){
             fprintf(stdout, "please specify another id");
         }
     }
-    if(strcmp(cmdtok, "FIND_V")==0){
-        std::vector<Point> accumulated;
-        double treshold = strtod(arg, 0);
-        for(auto& figure: canvas.getChildren()){
-            if(1){
-                Point copy (*static_cast<Point*>(figure));
-                accumulated.push_back(copy);
-            }
-        }
-        srand((unsigned)time(0));
-        remove("__arch");
-        std::string time_arg = std::to_string(clock() % 9837);
-        for(auto elem: clusterFinder::vaweSearch(accumulated, treshold)){
-            
-            auto cluster_copy = elem;
-            printf("found cluster and recorded to file %p.txt\n", (void*)&cluster_copy);
-            
-            elem.setColor(rand() % (1<<24));
-            elem.archieve(time_arg);
-        }
+    
+    
+    
+    if(strncmp("FIND:", cmdtok, 5)==0){
+        char * type_token = strchr(cmdtok, ':')+1;
+        processAlgorithm(type_token, arg);
         return;
     }
     if(strcmp(cmdtok, "ARCH")==0){
@@ -145,107 +139,6 @@ void Controller::processCommand(const char * command){
         }
         fclose(f);
         return;
-    }
-    if(strcmp(cmdtok, "FIND_K")==0){
-        std::vector<Point> accumulated;
-        for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
-                Point copy (*static_cast<Point*>(figure));
-                accumulated.push_back(copy);
-            }
-        }
-        remove("__arch*");
-        /*
-         iterate over k, finding out minimum value
-         */
-        kmeansFinder initial(2);
-        std::vector<Cluster> found = initial.find(accumulated);
-        double minScore = count_score( found );
-        int k = 0;
-        sscanf(arg, "%d", &k);
-        kmeansFinder finder(k);
-        found = finder.find(accumulated);
-        double curScore = count_score(found);
-        
-        srand(time(0));
-        std::string time_arg = std::to_string(clock() % 9837);
-        forEach(found, [&](Cluster &c){
-            c.setColor(rand()%(1<<24));
-            c.archieve(time_arg);
-        });
-        printf("k = %d, value = %lf, %lu clusters acrhieved\n", k, curScore, found.size());
-        return;
-    }
-    
-    if(strcmp(cmdtok, "IERARCH")==0){
-        int count;
-        sscanf(arg, "%d", &count);
-        std::vector<Point> accumulated;
-        for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
-                Point copy (*static_cast<Point*>(figure));
-                accumulated.push_back(copy);
-            }
-        }
-        auto found = hierchAlgorithm().find(count, accumulated);
-        std::string time_arg = std::to_string(clock() % 9837);
-        forEach(found, [&](Cluster &c){
-            c.setColor(rand()%(1<<24));
-            c.archieve(time_arg);
-        });
-        printf("%lu clusters acrhieved\n", found.size());
-        return;
-        
-    }
-    
-    if(strcmp(cmdtok, "FOREL")==0){
-        double rad;
-        sscanf(arg, "%lf", &rad);
-        std::vector<Point> accumulated;
-        for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
-                Point copy (*static_cast<Point*>(figure));
-                accumulated.push_back(copy);
-            }
-        }
-        auto algorithm = ForelAlgorithm();
-        auto result = algorithm.find(accumulated, rad);
-        std::string time_arg = std::to_string(clock() % 9837);
-        FILE* sphere_output = fopen(("spheres"+time_arg).c_str(), "w");
-        forEach(result, [&](Cluster &c){
-            c.setColor(rand()%(1<<24));
-            c.archieve(time_arg);
-            Point center =  reduceVector<Point>(c.getState(), [&](Point p, Point acc)->Point{
-                return Point(p.getX() + acc.getX(), p.getY() + acc.getY());
-            });
-            center.setX( center.getX() / c.size() );
-            center.setY( center.getY() / c.size() );
-            fprintf(sphere_output, "%lf %lf\n", center.getX(), center.getY());
-        });
-        fclose(sphere_output);
-        return;
-    }
-    
-    if(strcmp(cmdtok, "DBSCAN")==0){
-        int count;
-        double thresold;
-        sscanf(arg, "%d%lf", &count, &thresold);
-        std::set<Point> accumulated;
-        for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
-                Point copy (*static_cast<Point*>(figure));
-                accumulated.insert(copy);
-            }
-        }
-        auto found = DBSCAN(thresold, count).find(accumulated);
-        std::string time_arg = std::to_string(clock() % 9837);
-        forEach(found, [&](Cluster &c){
-            c.setColor(rand()%(1<<24));
-            c.archieve(time_arg);
-        });
-        printf("%lu clusters acrhieved\n", found.size());
-        return;
-        
     }
     
     
@@ -280,19 +173,6 @@ void Controller::processCommand(const char * command){
                 canvas.addFigure(new Point(point));
             }
         });
-        return;
-    }
-    if(strcmp(cmdtok, "SPAN")==0){
-        std::set<Point> accumulated;
-        for(auto& figure: canvas.getChildren()){
-            if(figure->type == 1){
-                Point copy (*static_cast<Point*>(figure));
-                accumulated.insert(copy);
-            }
-        }
-        TreeFactory factory;
-        factory.generateGist(accumulated);
-        fprintf(stdout, "Recorded to gist.txt\n plot with: plot \"gist.txt\" with boxes");
         return;
     }
     

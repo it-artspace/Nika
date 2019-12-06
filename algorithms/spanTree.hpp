@@ -1,4 +1,6 @@
 
+//211 - Kikteva Veronika
+//Zadacha 1
 
 #ifndef spanTree_hpp
 #define spanTree_hpp
@@ -8,9 +10,8 @@
 #include <cstring>
 #include "../functional/utils.hpp"
 #include <set>
-#include "../Objects/bitset.h"
-
-class TreeFactory{
+#include "algorithmsControl.h"
+class TreeFactory: public Algorithm{
     std::set<const Point*> graph;
     std::set<const Point*> source;
     std::set<Point> data;
@@ -67,10 +68,12 @@ class TreeFactory{
     }
     
 public:
-    
+    void setup (char * arg) override{}
     //analyzes passed set and prints gist into same named file
-    void generateGist( std::set<Point> points ){
-        data = points;
+    std::vector<Cluster> find( std::vector<Point> points )override {
+        for(auto p: points){
+            data.insert(p);
+        }
         for(auto& item:data){
             source.insert(&item);
         }
@@ -111,6 +114,7 @@ public:
             fprintf(f, "%f %f\n%f %f\n\n", (*verge.first)->getX(), (*verge.first)->getY(), (*verge.second)->getX(), (*verge.second)->getY());
         }
         fclose(f);
+        return std::vector<Cluster>();
     }
     
 };

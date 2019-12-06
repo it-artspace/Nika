@@ -1,16 +1,14 @@
-//
-//  Forel.h
-//  task1
-//
-//  Created by Дмитрий Маслюков on 29.11.2019.
-//  Copyright © 2019 Дмитрий Маслюков. All rights reserved.
-//
+//211 - Kikteva Veronika
+//Zadacha 1
 
 #ifndef Forel_h
 #define Forel_h
+#include "algorithmsControl.h"
+#include <set>
+#include <vector>
 #include "../Objects/cluster.hpp"
 typedef std::vector<std::set<Point>::iterator> Sphere;
-class ForelAlgorithm{
+class ForelAlgorithm: public Algorithm{
     
     std::set<Point> points;
     std::vector<Cluster> found;
@@ -25,6 +23,10 @@ class ForelAlgorithm{
         }
         return result;
     }
+    
+    
+    
+    
 public:
     
     Point getSphereCenter(Sphere sphere){
@@ -34,7 +36,7 @@ public:
         return Point( p.getX()/(sphere.size()), p.getY()/(sphere.size()) );
     }
 private:
-    
+   
     void Iterate(){
         Sphere sphere;
         Point center;
@@ -54,15 +56,33 @@ private:
         
     }
 public:
-    std::vector<Cluster> find(std::vector<Point> source, int radius){
+    void setup( char * arg ) override{
+        int rad;
+        sscanf(arg, "%d", &rad);
+        mRadius = rad;
+    }
+    std::vector<Cluster> find(std::vector<Point> source) override {
         for(auto point: source){
             points.insert(point);
         }
-        mRadius = radius;
         while( not points.empty() ){
             Iterate();
         }
-        return found;
+        
+        std::vector<Cluster> result = found;
+        found.clear();
+        points.clear();
+        FILE * sphere_output = fopen("spheres", "w");
+        forEach(result, [&](Cluster &c){
+            Point center =  reduceVector<Point>(c.getState(), [&](Point p, Point acc)->Point{
+                return Point(p.getX() + acc.getX(), p.getY() + acc.getY());
+            });
+            center.setX( center.getX() / c.size() );
+            center.setY( center.getY() / c.size() );
+            fprintf(sphere_output, "%lf %lf\n", center.getX(), center.getY());
+        });
+        fclose(sphere_output);
+        return result;
     }
     
 };

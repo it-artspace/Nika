@@ -1,16 +1,14 @@
-//
-//  dbscan.h
-//  task1
-//
-//  Created by Дмитрий Маслюков on 20.11.2019.
-//  Copyright © 2019 Дмитрий Маслюков. All rights reserved.
-//
+
+//211 - Kikteva Veronika
+//Zadacha 1
 
 #ifndef dbscan_h
 #define dbscan_h
 #include "../Objects/cluster.hpp"
-#include "../Objects/DistanceMatrix.h"
-class DBSCAN{
+#include "algorithmsControl.h"
+#include <vector>
+#include <map>
+class DBSCAN: public Algorithm{
     double mThresold;
     int minPts;
     int unusedPointQ;
@@ -28,7 +26,6 @@ class DBSCAN{
     int currentPointIdx = 0;
     int maxPointIdx = 0;
     
-    std::map<int, std::vector<pointStorage*>> bindings;
     
     void Iterate(){
         for( auto& elem: mPoints ){
@@ -86,12 +83,11 @@ class DBSCAN{
     }
     
 public:
-    DBSCAN( double thresold, int mpts ){
-        mThresold = thresold;
-        minPts = mpts;
-    }
     
-    std::vector<Cluster> find( std::set<Point> points ){
+    void setup (char * arg) override{
+        sscanf(arg, "%lf%d", &mThresold, &minPts);
+    }
+    std::vector<Cluster> find( std::vector<Point> points ) override{
         for(auto Point: points){
             mPoints.push_back({
                 .point = Point,
@@ -102,7 +98,10 @@ public:
         while( currentPointIdx < mPoints.size() ){
             Iterate();
         }
-        
+        currentClusterNo = 0;
+        mPoints.clear();
+        currentPointIdx = 0;
+        maxPointIdx = 0;
         return gather();
     }
 };

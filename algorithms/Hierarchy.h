@@ -10,8 +10,8 @@
 #include <cmath>
 #include <algorithm>
 #include <set>
-
-class hierchAlgorithm{
+#include "algorithmsControl.h"
+class hierchAlgorithm : public Algorithm{
     
     class HeavyPoint{
         //actually it stores enough info
@@ -38,7 +38,7 @@ class hierchAlgorithm{
         Point addPoint( Point p ){
             children.push_back(p);
             Point nc = reduceVector<Point>(children, [&](Point p, Point acc)->Point{
-                return Point(p.getX() + acc.getY(), p.getY() + acc.getY());
+                return Point(p.getX() + acc.getX(), p.getY() + acc.getY());
             });
             nc.setX(nc.getX() / children.size());
             nc.setY(nc.getY() / children.size());
@@ -64,9 +64,15 @@ class hierchAlgorithm{
     
     //actually contain the centers
     std::set<HeavyPoint> centers;
+    int count;
+    
+    
 public:
     
-    std::vector< Cluster > find(int count, std::vector<Point> points){
+    void setup(char * arg) override{
+        sscanf(arg, "%d", &count);
+    }
+    std::vector< Cluster > find(std::vector<Point> points) override{
         std::vector<Cluster> found;
         for(auto point:points){
             HeavyPoint heavy;
@@ -84,6 +90,7 @@ public:
             }
             found.push_back(new_cluster);
         }
+        centers.clear();
         return found;
     }
     

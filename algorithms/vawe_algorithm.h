@@ -1,14 +1,24 @@
 
+//211 - Kikteva Veronika
+//Zadacha 1
 
 #ifndef vawe_algorithm_h
 #define vawe_algorithm_h
-
+#include "algorithmsControl.h"
+#include <vector>
 #include "../Objects/cluster.hpp"
-#warning TODO: restructure
-class clusterFinder{
+
+class clusterFinder : public Algorithm{
+    double threshold;
 public:
-    static
-    std::vector<Cluster> vaweSearch(std::vector<Point> points, double treshold){
+    clusterFinder(){
+        tip = "gnuplot with \"plot \'__arch(*)\' with using 1:2:($3) with points lc rgb variable \"";
+    }
+    
+    void setup(char *arg) override{
+        sscanf(arg, "%lf", &threshold);
+    }
+    std::vector<Cluster> find(std::vector<Point> points) override{
         std::vector<Cluster> clusters;
         std::vector<std::vector<bool>> matrix;
         for(int i = 0; i <points.size();++i){
@@ -22,7 +32,7 @@ public:
         for(int first_point_pos = 0; first_point_pos < points.size(); ++ first_point_pos){
             for(int second_point_pos = 0; second_point_pos < points.size(); ++ second_point_pos){
                 double distance = points[first_point_pos].distanceTo(points[second_point_pos]);
-                matrix[first_point_pos][second_point_pos] = (distance <= treshold);
+                matrix[first_point_pos][second_point_pos] = (distance <= threshold);
             }
         }
         for(int point_iterator = 0; point_iterator < points.size(); ++point_iterator){
