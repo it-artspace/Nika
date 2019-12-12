@@ -1,3 +1,6 @@
 *.txt
-__arch
+__arc*
 geom
+Geomwork.log
+spheres*
+vectors*

@@ -1,0 +1,3 @@
+make
+lldb ./geom
+r

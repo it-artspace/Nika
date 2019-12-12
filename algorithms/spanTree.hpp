@@ -8,6 +8,7 @@
 #include "../Objects/point.h"
 #include <vector>
 #include <cstring>
+#include <algorithm>
 #include "../functional/utils.hpp"
 #include <set>
 #include "algorithmsControl.h"
