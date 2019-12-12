@@ -27,6 +27,17 @@ public:
     std::pair<vector, vector> svdDecompose(std::vector<Point> cluster){
         double matrix[2][2];
         matrix[0][0] = matrix[1][0] = matrix[0][1] = matrix[1][1] = 0;
+                
+        Point center = reduceVector<Point>(cluster, [](Point p, Point acc)->Point{
+            return Point(p.getX() + acc.getX(), p.getY() + acc.getY());
+        });
+        center.setX(center.getX() / cluster.size());
+        center.setY(center.getY() / cluster.size());
+        
+        cluster = remapVector<Point>(cluster, [&](Point & p)->Point{
+            return Point(p.getX() - center.getX(), p.getY() - center.getY());
+        });
+        
         forEach(cluster, [&](Point p){
             matrix[0][0] += p.getX()*p.getX();
             matrix[0][1] += p.getX()*p.getY();
@@ -36,12 +47,7 @@ public:
         matrix[0][1] /= cluster.size();
         matrix[1][1] /= cluster.size();
         matrix[1][0] = matrix[0][1];
-        
-        Point center = reduceVector<Point>(cluster, [](Point p, Point acc)->Point{
-            return Point(p.getX() + acc.getX(), p.getY() + acc.getY());
-        });
-        center.setX(center.getX() / cluster.size());
-        center.setY(center.getY() / cluster.size());
+
         
         double l1, l2;
         l1 = l2 = 0.5*(matrix[0][0] + matrix[1][1]);
@@ -50,8 +56,6 @@ public:
         l2 += sqr;
         auto firstPt = vectorEnd(matrix, l1);
         auto secPt = vectorEnd(matrix, l2);
-        secPt.setX(secPt.getX() / l2);
-        secPt.setY(secPt.getY() / l2);
         
         return {
             {center, firstPt},

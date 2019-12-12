@@ -17,7 +17,7 @@ std::vector<Result_t> remapVector(Basic_t source, Transformer_t remapper){
 //applies function to all collection elements. They can be mutated and even reassigned
 template<typename Basic_t, typename Transformer_t>
 void forEach(Basic_t source, Transformer_t remapper){
-    for(auto element: source){
+    for(auto& element: source){
         remapper(element);
     }
 }
