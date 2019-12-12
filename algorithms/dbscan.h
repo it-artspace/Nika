@@ -90,8 +90,8 @@ public:
     std::vector<Cluster> find( std::vector<Point> points ) override{
         for(auto Point: points){
             mPoints.push_back({
-                .point = Point,
-                .classification = unknown
+                unknown,
+                Point
             });
         }
         
