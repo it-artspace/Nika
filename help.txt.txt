@@ -1,39 +1,47 @@
-signatura:
-<IDENTIFIER> [, < [ ARGUMENT: type ] > ]
-    poyasnenie
+latest update of 12.12.2019
 
-comanda = stroka do symvola \n ili -1 (EOF)
+user manual
 
-DISP [DISP:int]
-    ustanovit' dispersiu
+commands:
+
+работа с точками:
+- ARCH (no arg)
+    сохраняет состояние канваса в файл __arch1
     
-GEN
-    sgenerirovat' tochki
+- DEARCH (archno: number)
+    загружает из файла в канвас
+
+эти две команды используются при включении/выключении программы чтобы сохранять выборку точек
+
+алгоритмы поиска:
+- FIND:[algoname:IDENTIFIER] (params)
+    algoname может принимать следующие значения:
+    - VAWE (волновой поиск) аргумент - пороговое расстояние. Рекомендуется целое число
+    - KMEANS (к-средних) аргумент - k
+    - SPAN (минимальное остовное дерево). Без аргументов строит дерево. Несмотря на то, что формально является алгоритмом поиска, строит граф. Гнуплот: plot 'span*.txt' with lines
+    - HIERARCH (Иерархический) аргумент - количество кластеров
+    - DBSCAN - два аргумента: расстояние и минимальное количество точек в круге данного радиуса. Стирает часть точек. Расстояние дробное.
+    - FOREL - принимает в качестве аргумента радиус сферы. Целый.
+
+результаты поиска сохраняются в вектор векторов векторов точек.
+
+- EXTRACT (idx:int) выгружает результат в файл для гнуплот
+
+- SAVE (без аргументов) сохраняет результаты поисков
+- LOAD (без аргументов) выгружает результаты поиска из файла-архива
+
+Немного о генерации
+
+- CLUSTGEN (minX, minY, maxX, maxY, disp, amount, color:Int)
+    генерирует в прямоугольнике amount точек с дисперсией disp цвета color. Границы прямоугольника - первые 4 параметра
+    выдает айдишник группы для поворота
     
-DRAW
-    vyvesti v fail
-    
-GIST
-    sozdat' gistogrammu
+- ROTATE (id:hexadecimal, angle:rad)
+    поворот группы по адресу id на угол angle
 
-ARCH
-    archiviruet tochki canvasa v file __arch
-
-DEARCH
-    dostaet tochki is file __arch, mozhet slomatsa, esli ego net
-    
-FIND_K
-    realizuet algorithm poiska k-srednih. Skazhite, u vas ne idet krov iz glaz, kogda vi chitaete translit? u menya da
-    
-FIND_V [THRESHOLD:double]
-    volnovoi poisk
-
----------------------------
-nekotorye soobrazhenia i instruckii k optimalnomu ispolzovaniu
-
-sborka: make, poluchaetsya file "geom"
-
-postroenie pandi: v file "cmds" napisan script, "./geom cmds"
+сборка и запуск:
+- в директории проекта make в терминал
+- ./geom [файл со скриптом]
 
 
 
