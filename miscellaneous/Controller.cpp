@@ -9,7 +9,7 @@
 #include <typeinfo>
 #include <fstream>
 #include <unistd.h>
-
+#include <map>
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
 
@@ -27,6 +27,11 @@ void Controller::acquireListener(FILE * fd){
         fprintf(stdout, "\n>>>");
     }
 }
+
+static void printVector(FILE* file, const typename SVDProcessor::vector & v){
+    fprintf(file, "%lf %lf %lf %lf\n", v.first.getX(), v.first.getY(), v.second.getX(), v.second.getY());
+}
+
 
 
 std::vector<Point> Controller::extracted() {
@@ -99,9 +104,12 @@ void Controller::processCommand(const char * command){
         sscanf(arg, "%d%d%d%d%d%d%d", bounds, bounds + 1, bounds + 2, bounds + 3, &disp, &amount, &color);
         Group g(disp, amount, bounds);
         std::vector<Point> points = g.generate();
-        std::for_each(points.begin(), points.end(), [&](Point c){
-            canvas.addFigure(new Point(c));
-        });
+        Cluster * cl = new Cluster();
+        for(auto point:points){
+            cl->addPoint(point);
+        }
+        canvas.addFigure(cl);
+        printf("GROUP with id = %p generated. use id to rotate", (void*)cl);
         return;
     }
     
@@ -109,7 +117,7 @@ void Controller::processCommand(const char * command){
         void * id;
         double angle;
         sscanf(arg, "%p%lf", &id, &angle);
-        Cluster * c = static_cast<Cluster*>(canvas.getById(id));
+        Cluster * c = dynamic_cast<Cluster*>(canvas.getById(id));
         if(c){
             c->rotate(angle);
             fprintf(stdout, "rotated succesfully");
@@ -128,9 +136,14 @@ void Controller::processCommand(const char * command){
     if(strcmp(cmdtok, "ARCH")==0){
         std::vector<Point *> accumulated;
         for(auto& figure: canvas.getChildren()){
-            if(1){
+            if(figure->type == 1){
                 Point * copy = new Point(*static_cast<Point*>(figure));
                 accumulated.push_back(copy);
+            } else if(figure->type == 2){
+                Cluster * cl = dynamic_cast<Cluster*>(figure);
+                for(auto& p: cl->getState()){
+                    accumulated.push_back(&p);
+                }
             }
         }
         FILE * f = fopen("__arch", "w");
@@ -138,6 +151,40 @@ void Controller::processCommand(const char * command){
             fprintf(f, "%lf %lf %d\n", point->getX(), point->getY(), 0);
         }
         fclose(f);
+        return;
+    }
+    
+    if(strcmp("SVD", cmdtok)==0){
+        char fname [200];
+        sprintf(fname, "__arch%s", arg);
+        FILE * f = fopen(fname, "r");
+        if(! f){
+            printf("Not found file with clustering: %s. try again\n", fname);
+            return;
+        }
+        std::map<int, std::vector<Point>> clusters;
+        char rdbuf [1000];
+        int color;
+        double x, y;
+        while(fgets(rdbuf, 1000, f)){
+            sscanf(rdbuf, "%lf%lf%d", &x, &y, &color);
+            if( clusters.count(color) == 0 ){
+                clusters[color] = std::vector<Point>();
+            }
+            clusters[color].push_back(Point(x, y));
+        }
+        char vname [200];
+        sprintf(vname, "vectors%ld", time(0) % 8377);
+        FILE * vectorF = fopen(vname, "w");
+        for(auto it:clusters){
+            auto vectors = SVDProcessor().svdDecompose(it.second);
+            printVector(vectorF, vectors.first);
+            printVector(vectorF, vectors.second);
+        }
+        fclose(vectorF);
+        fclose(f);
+        printf("svd decomposition finished. you might do the following with gnuplot:"
+               "\"plot '%s' using 1:2:($3) with points lc rgb variable, '%s' using 1:2:3:4 with vectors filled head lw 3\"", fname ,vname);
         return;
     }
     

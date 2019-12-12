@@ -46,6 +46,7 @@ Cluster::Cluster(Point & center){
 
 Cluster::Cluster(){
     color = 0;
+    type = 2;
 }
 
 void Cluster::rotate(double angle){

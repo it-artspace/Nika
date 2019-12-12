@@ -14,6 +14,7 @@
 #include "../Objects/cluster.hpp"
 #include "../algorithms/dbscan.h"
 #include "../algorithms/Forel.h"
+#include "../algorithms/svd.h"
 #include <ctime>
 #include <map>
 #include <time.h>
