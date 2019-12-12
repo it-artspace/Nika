@@ -177,9 +177,11 @@ void Controller::processCommand(const char * command){
         sprintf(vname, "vectors%ld", time(0) % 8377);
         FILE * vectorF = fopen(vname, "w");
         for(auto it:clusters){
-            auto vectors = SVDProcessor().svdDecompose(it.second);
-            printVector(vectorF, vectors.first);
-            printVector(vectorF, vectors.second);
+            if( it.second.size() > 10 ){
+                auto vectors = SVDProcessor().svdDecompose(it.second);
+                printVector(vectorF, vectors.first);
+                printVector(vectorF, vectors.second);
+            }
         }
         fclose(vectorF);
         fclose(f);
