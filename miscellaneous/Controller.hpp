@@ -34,7 +34,8 @@ static std::string archieve_found(const std::vector<Cluster> &found, std::string
 class Controller{
 private:
     //sdelali constructor privatnym, chtoby ne sozdavat exemplyary vne klassa
-    
+    typedef std::vector<Cluster> FindResults;
+    std::vector< FindResults > results;
     //exemplyar, ediniza
     static Controller * instance;
     std::vector<Point> extracted();
@@ -68,8 +69,8 @@ private:
         algorithm->setup(args);
         fprintf(logFile, "%ld I algorithm %s started working\n", time(0), name);
         std::vector<Cluster> found = algorithm->find(extracted());
-        std::string fout = archieve_found(found, name);
-        fprintf(stdout, "Found. You might want to do the following: %s with %s", algorithm->tip, fout.c_str());
+        results.push_back(found);
+        printf("pushed results of %s algo into %lu case\n", name, results.size() - 1);
         fprintf(logFile, "%ld I algorithm %s worked\n", time(0), name);
     }
     

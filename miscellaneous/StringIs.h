@@ -1,13 +1,29 @@
-//
-//  StringIs.h
-//  task1
-//
-//  Created by Дмитрий Маслюков on 13.12.2019.
-//  Copyright © 2019 Дмитрий Маслюков. All rights reserved.
-//
+
 
 #ifndef StringIs_h
 #define StringIs_h
+#include <string.h>
+class StringIs{
+    char * value = 0;
+public:
+    friend StringIs operator < (const char * str, const StringIs& _){
+        StringIs strValSaver;
+        strValSaver.value = strdup(str);
+        return strValSaver;
+    }
+    friend bool operator > (const StringIs& strValContainer, const char * rhs){
+        return strcmp(strValContainer.value, rhs) == 0;
+    }
+    
+    ~StringIs(){
+        if(value){
+            free(value);
+        }
+    }
+};
+
+#define is <StringIs()>
+
 
 
 #endif /* StringIs_h */

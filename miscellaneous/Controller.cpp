@@ -10,6 +10,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <map>
+#include "StringIs.h"
 //podgotavliveam controller k rabote
 Controller * Controller::instance = new Controller();
 
@@ -32,6 +33,30 @@ static void printVector(FILE* file, const typename SVDProcessor::vector & v){
     fprintf(file, "%lf %lf %lf %lf\n", v.first.getX(), v.first.getY(), v.second.getX(), v.second.getY());
 }
 
+static std::vector<std::vector<Cluster>> loadResults(FILE * fin){
+    std::map< int, std::map<int, std::vector<Point>> > inParse;
+    double x, y;
+    int color, ResIdx;
+    char rdbuf [4000];
+    while(fgets(rdbuf, 4000, fin)){
+        sscanf(rdbuf, "%lf %lf %d %d", &x, &y, &color, &ResIdx);
+        inParse[ ResIdx ][ color ].push_back(Point(x, y));
+    }
+    std::vector< std::vector<Cluster> > results;
+    //process mapping
+    for( auto algoKey: inParse ){
+        std::vector<Cluster> localRes;
+        for(auto clust: algoKey.second){
+            Cluster cl;
+            for( auto pointReference: clust.second ){
+                cl.addPoint(pointReference);
+            }
+            localRes.push_back(cl);
+        }
+        results.push_back(localRes);
+    }
+    return results;
+}
 
 
 std::vector<Point> Controller::extracted() {
@@ -146,11 +171,48 @@ void Controller::processCommand(const char * command){
                 }
             }
         }
-        FILE * f = fopen("__arch", "w");
+        FILE * f = fopen("__arch1", "w");
         for(auto point:accumulated){
             fprintf(f, "%lf %lf %d\n", point->getX(), point->getY(), 0);
         }
         fclose(f);
+        return;
+    }
+    
+    if(strcmp("EXTRACT", cmdtok)==0){
+        char * __;
+        long argN = strtol(arg, &__, 10);
+        if( argN > results.size() - 1 ){
+            printf("Cannot extract value excess of the bounds %lu\n", results.size() - 1);
+            return;
+        }
+        auto fout = archieve_found(results[argN]);
+        printf("success. result in file %s\n", fout.c_str());
+    }
+    
+    if(cmdtok is "SAVE"){
+        FILE * f = fopen("__farch", "w");
+        for(int resIdx = 0; resIdx < results.size(); ++resIdx){
+            FindResults res = results[resIdx];
+            for(int clusterIdx = 0; clusterIdx < res.size(); ++clusterIdx){
+                Cluster curCluster = res[clusterIdx];
+                for( Point point: curCluster.getState() ){
+                    fprintf(f, "%lf %lf %d %d\n", point.getX(), point.getY(), clusterIdx, resIdx);
+                }
+            }
+        }
+        printf("saved\n");
+        fclose(f);
+    }
+    
+    if(cmdtok is "LOAD"){
+        FILE * fin = fopen("__farch", "r");
+        if( not fin ){
+            printf("nothing to load\n");
+            return;
+        }
+        results = loadResults(fin);
+        fclose(fin);
         return;
     }
     
