@@ -43,14 +43,14 @@ class kmeansFinder: public Algorithm{
             
         });
         
-        //seems thats all
+      
         return generation;
     }
     
     
     
 public:
-    
+    //if centers do remain
     bool centers_remain(std::vector<Point> previous_gen){
         for(int i = 0; i < k; ++i){
             if(!(centers[i]==previous_gen[i]))

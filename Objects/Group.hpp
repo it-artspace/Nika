@@ -8,17 +8,20 @@
 #include <stdlib.h>
 #include <vector>
 #include <cstring>
+//group of points that directly holds the point children
 class Group{
     std::vector<Point> points;
     int bounds[4];
     int amount;
     int disp;
 public:
+    //setup the generation conditions
     Group(int _d, int _a, int * _bounds){
         memcpy(bounds, _bounds, sizeof(int)*4);
         amount = _a;
         disp = _d;
     }
+    //generating the points array
     std::vector<Point> generate(){
         for(int i = 0; i < amount; ++i){
             double x = 0, y = 0;

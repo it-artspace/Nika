@@ -7,14 +7,14 @@
 #include "algorithmsControl.h"
 #include <vector>
 #include "../Objects/cluster.hpp"
-
+//vawe algorithm
 class clusterFinder : public Algorithm{
     double threshold;
 public:
     clusterFinder(){
         tip = "gnuplot with \"plot \'__arch(*)\' with using 1:2:($3) with points lc rgb variable \"";
     }
-    
+    //setup the thresold
     void setup(char *arg) override{
         sscanf(arg, "%lf", &threshold);
     }

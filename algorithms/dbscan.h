@@ -9,6 +9,8 @@
 #include <vector>
 #include <map>
 class DBSCAN: public Algorithm{
+    
+    
     double mThresold;
     int minPts;
     int unusedPointQ;

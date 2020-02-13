@@ -5,6 +5,8 @@
 #define ClusterBuilder_h
 #include "../Objects/cluster.hpp"
 #include <ctime>
+
+//builder for Cluster object dots are generated randomly
 class Cluster::Builder{
     Cluster * cluster;
     int minH, minW, maxH, maxW;

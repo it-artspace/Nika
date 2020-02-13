@@ -6,6 +6,7 @@
 #define utils_hpp
 
 #include <vector>
+//standard implementations of high-order functions
 template<typename Result_t, typename Basic_t, typename Transformer_t>
 std::vector<Result_t> remapVector(Basic_t, Transformer_t);
 

@@ -3,6 +3,7 @@
 #ifndef StringIs_h
 #define StringIs_h
 #include <string.h>
+//class for comparing strings with operator
 class StringIs{
     char * value = 0;
 public:

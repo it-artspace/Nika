@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <map>
 #include "StringIs.h"
-//podgotavliveam controller k rabote
+//singleton traits
 Controller * Controller::instance = new Controller();
 
 Controller & Controller::getInstance(){
@@ -19,7 +19,7 @@ Controller & Controller::getInstance(){
 }
 
 
-//kazhday stroka - komanda
+//listen a file that we read commands in
 void Controller::acquireListener(FILE * fd){
     char command [1024];
     fprintf(stdout, "Listening file descriptor %d\n>>>", fileno(fd));
@@ -29,10 +29,12 @@ void Controller::acquireListener(FILE * fd){
     }
 }
 
+//function for svd vectors printing into file
 static void printVector(FILE* file, const typename SVDProcessor::vector & v){
     fprintf(file, "%lf %lf %lf %lf\n", v.first.getX(), v.first.getY(), v.second.getX(), v.second.getY());
 }
 
+//load results of former find algorithms work
 static std::vector<std::vector<Cluster>> loadResults(FILE * fin){
     std::map< int, std::map<int, std::vector<Point>> > inParse;
     double x, y;
@@ -58,7 +60,7 @@ static std::vector<std::vector<Cluster>> loadResults(FILE * fin){
     return results;
 }
 
-
+// get the point object from canvas underlying
 std::vector<Point> Controller::extracted() {
     std::vector<Point> accumulated;
     for(auto& figure: canvas.getChildren()){
@@ -71,7 +73,7 @@ std::vector<Point> Controller::extracted() {
 }
 
 
-
+//parse && process received command
 
 void Controller::processCommand(const char * command){
     //razdelyaem stroku s komandoy na token i argument

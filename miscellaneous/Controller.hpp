@@ -22,33 +22,33 @@
 #include <cstdio>
 #include <algorithm>
 #include "../algorithms/algorithmsControl.h"
-// u nas vsego odin object, poetomu mi sdelali constuctor privatnym
-static std::string archieve_found(const std::vector<Cluster> &found, std::string name = "") {
-    std::string time_arg = name + std::to_string(clock() % 9837);
-    forEach(found, [&](Cluster &c){
-        c.setColor(rand()%(1<<24));
-        c.archieve(time_arg);
-    });
-    return time_arg;
-}
+
+//controller holds canvas & processes the command input
+//in MVC exactly this -- controller
 class Controller{
 private:
-    //sdelali constructor privatnym, chtoby ne sozdavat exemplyary vne klassa
+    //results of last search
     typedef std::vector<Cluster> FindResults;
     std::vector< FindResults > results;
-    //exemplyar, ediniza
+    // as controller is a singleton
     static Controller * instance;
+    // extracted points
     std::vector<Point> extracted();
     
     void processCommand(const char *);
+    //some find commands that are treated in very special way
     std::map<std::string, Algorithm*> commands;
-    
+    //register an algorithm
+    // - algorithm must be a stateless (once worked, ready to new data) class derived from Algorithm class and support such methods:
+    //-> setup (for passing arguments)
+    //-> find: (vector of points) -> vector of clusters
     void addAlgorithm(std::string name, Algorithm* algorithm){
         commands[name] = algorithm;
     }
-    
+    //logging actions. mainly algorithms
     FILE * logFile;
     
+    //add known algos
     Controller(){
         addAlgorithm("VAWE",    new clusterFinder());
         addAlgorithm("KMEANS",  new kmeansFinder());
@@ -75,11 +75,12 @@ private:
     }
     
     Canvas canvas;
+    //some legacy when there was no ClusterBuilder
     int disp = 0;
 public:
-    //staticheskiy metod imeet dostup k privatnym polyam klassa i pozvolyaet rabotat' s exemplyarami, no v nego ne peredaets'a this
+    
     static Controller & getInstance();
-    //sadimsya na fail (stdin v osnovnom) i chitaem comandy
+    
     void acquireListener(FILE*);
 };
 

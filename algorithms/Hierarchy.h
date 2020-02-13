@@ -44,7 +44,7 @@ class hierchAlgorithm : public Algorithm{
             nc.setY(nc.getY() / children.size());
             return center = nc;
         }
-        
+        //operator +
         HeavyPoint Merge(const HeavyPoint & Other) const{
             HeavyPoint new_heavy;
             for(auto point: children)
