@@ -15,6 +15,7 @@
 #include "../algorithms/dbscan.h"
 #include "../algorithms/Forel.h"
 #include "../algorithms/svd.h"
+#include "../algorithms/EmAlgorithm.h"
 #include <ctime>
 #include <map>
 #include <time.h>
@@ -56,6 +57,7 @@ private:
         addAlgorithm("HIERARCH",new hierchAlgorithm());
         addAlgorithm("DBSCAN",  new DBSCAN());
         addAlgorithm("FOREL",   new ForelAlgorithm());
+        addAlgorithm("EM", new EmAlgorithm());
         logFile = fopen("Geomwork.log", "a");
     }
     //args are real arguments that will be passed

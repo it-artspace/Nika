@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include "../Objects/cluster.hpp"
+#define extends :public
 class Algorithm{
 public:
     virtual void setup(char* arg)=0;

@@ -19,13 +19,16 @@ class TreeFactory: public Algorithm{
     
     
     typedef std::pair<std::set<const Point*>::iterator, std::set<const Point*>::iterator> verge;
-    static double vergeLength(const verge& v);
     class vergeComp{
         public :bool operator()(const verge& v1, const verge& v2){
             return vergeLength(v1) < vergeLength(v2);
         }
     };
     
+    static double vergeLength(const verge &v){
+        return (*v.first)->distanceTo(**v.second);
+    }
+
     
     typedef std::vector< verge> VergeSet;
     

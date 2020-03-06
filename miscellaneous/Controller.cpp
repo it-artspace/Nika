@@ -181,7 +181,7 @@ void Controller::processCommand(const char * command){
         return;
     }
     
-    if(strcmp("EXTRACT", cmdtok)==0){
+    /*if(strcmp("EXTRACT", cmdtok)==0){
         char * __;
         long argN = strtol(arg, &__, 10);
         if( argN > results.size() - 1 ){
@@ -190,7 +190,7 @@ void Controller::processCommand(const char * command){
         }
         auto fout = archieve_found(results[argN]);
         printf("success. result in file %s\n", fout.c_str());
-    }
+    }*/
     
     if(cmdtok is "SAVE"){
         FILE * f = fopen("__farch", "w");
