@@ -1,21 +1,13 @@
-//
-//  EmAlgorithm.h
-//  task1
-//
-//  Created by Дмитрий Маслюков on 06.03.2020.
-//  Copyright © 2020 Дмитрий Маслюков. All rights reserved.
-//
 
 #ifndef EmAlgorithm_h
 #define EmAlgorithm_h
 #include "algorithmsControl.h"
 #include <map>
 #include <cstdio>
-#include "../Objects/matrix.h"
+#include "EMConsumer.h"
 
+#include<vector>
 
-//#include "stdafx.h"
-//#include "targetver.h"
 #include <math.h>
 
 typedef struct inputdata_multi_gauss {
@@ -23,9 +15,12 @@ typedef struct inputdata_multi_gauss {
     int nClass;
     double * pNormalProb;
 } INPUTDATA_MULTI_GAUSS;
-
+//klass dlya obrabotki dannyh s sostoyaniem
 class CGMM
 {
+    EMConsumer writer;
+    //dolzhny ostavatsa takimi zhe dlya korrektnoy otrisovki
+    std::vector<int> clust_colors;
 public:
     CGMM(void){
         m_nMaxLoop = 10000;
@@ -56,7 +51,11 @@ public:
     
     void init(int nSizeK, int nSizeRecord, int nSizeFeature, INPUTDATA_MULTI_GAUSS ** ppDataList){
         m_nSizeK = nSizeK;
+        
         m_nSizeRecord = nSizeRecord;
+        for(int i = 0; i < nSizeK; i++){
+            clust_colors.push_back(rand() % (1<<24));
+        }
         m_nSizeFeature = nSizeFeature;
         m_ppDataList = ppDataList;
         
@@ -145,28 +144,20 @@ private:
         }
         
         // print statistics
+        std::vector<Cluster> clusters;
         for(int a=0; a<m_nSizeK; a++) {
-            printf("cluster[%d] cnt:%d, ", a, m_pNumClass[a]);
+            Cluster cl;
+            cl.setColor(clust_colors[a]);
+            for(int pointNo = 0; pointNo < m_nSizeRecord; pointNo++){
+                if(m_ppDataList[pointNo]->nClass == a){
+                    Point p(m_ppDataList[pointNo]->pData[0], m_ppDataList[pointNo]->pData[1]);
+                    cl.addPoint(p);
+                }
+            }
+            clusters.push_back(cl);
             
-            printf("data[");
-            for(int z=0; z<m_nSizeRecord; z++) {
-                if(m_ppDataList[z]->nClass == a)
-                    printf("%d ", z);
-            }
-            printf("]\n");
-            
-            printf("mean:  ");
-            for(int b=0; b<m_nSizeFeature; b++) {
-                printf("feat[%d]:%.1f/%d, ", b, m_ppSumFeatClass[a][b], m_pNumClass[a]);
-            }
-            printf("\n");
-            printf("var:   ");
-            for(int b=0; b<m_nSizeFeature; b++) {
-                printf("feat[%d]:%.1f/(%d-1), ", b, m_ppSumVarClass[a][b], m_pNumClass[a]);
-            }
-            printf("\n");
         }
-        printf("\n");
+        writer.write_chunk(clusters);
     }
     void m_step(){
         double * pProbability = new double[m_nSizeK];
@@ -308,7 +299,7 @@ public:
         pGmm->init(nclasses, (int)data.size(), 2, ppInputData);
         pGmm->train();
         
-        
+        delete pGmm;
         return result;
         
     }

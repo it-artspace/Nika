@@ -37,6 +37,10 @@ public:
         
         
     }
+    
+    const Point& operator[](int idx) const{
+        return points[idx];
+    }
     int getColor() const {
         return color;
     }
